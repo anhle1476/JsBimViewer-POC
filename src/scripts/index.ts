@@ -1,7 +1,9 @@
 import { Color } from "three";
+import SelectAction from "./core/actions/select/select-action";
 import BimViewer from "./core/bim-viewer";
+import SimpleTree from "./structures/tree/simple-tree";
 
-const container = document.getElementById("root")! as HTMLElement;
+const container = document.getElementById("viewer-container")! as HTMLElement;
 const viewer = new BimViewer({
 	container,
 	backgroundColor: new Color(0xffffff),
@@ -9,21 +11,26 @@ const viewer = new BimViewer({
 viewer.axes.setAxes();
 viewer.grid.setGrid();
 
+const treeRoot = document.getElementById("myUL") as HTMLUListElement;
+const treeMenu = new SimpleTree(viewer.IFC, treeRoot);
+
 const input = document.getElementById("file-input")! as HTMLInputElement;
 input.addEventListener(
 	"change",
-	async (changed : Event) => {
+	async (changed: Event) => {
 		const target = changed.target as HTMLInputElement;
 		if (!target.files) return;
 		const file = target.files[0];
 		const ifcURL = URL.createObjectURL(file);
-		viewer.IFC.loadIfcUrl(ifcURL);
+		await viewer.IFC.loadIfcUrl(ifcURL);
+		treeMenu.renderTree(0);
 	},
 	false
 );
 
-window.ondblclick = () => viewer.IFC.selector.pickIfcItem(true);
-window.onmousemove = () => viewer.IFC.selector.prePickIfcItem();
+const selectAction = new SelectAction(viewer);
+viewer.registerAction(selectAction);
+
 viewer.clipper.active = true;
 
 window.onkeydown = (event) => {
@@ -34,5 +41,5 @@ window.onkeydown = (event) => {
 	}
 };
 
-//DEBUG
+// TODO: remove, for DEV only
 (window as Record<string, any>)._viewer = viewer;
