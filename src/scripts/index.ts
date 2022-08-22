@@ -5,12 +5,15 @@ import SimpleTree from "./structures/tree/simple-tree";
 
 const container = document.getElementById("viewer-container")! as HTMLElement;
 const viewer = new BimViewer({
-	container,
-	backgroundColor: new Color(0xffffff),
+	viewer: {
+		container,
+		backgroundColor: new Color(0xffffff),
+	},
+	showStats: true,
+	cameraMaxDistance: 1200,
 });
 viewer.axes.setAxes();
 viewer.grid.setGrid();
-viewer.setMaxCameraDistance(1200);
 
 const treeRoot = document.getElementById("myUL") as HTMLUListElement;
 const treeMenu = new SimpleTree(viewer.IFC, treeRoot);

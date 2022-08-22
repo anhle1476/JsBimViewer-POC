@@ -3,8 +3,8 @@ import BaseAction from "../base-action";
 import BimViewer from "../../bim-viewer";
 
 export default class SelectAction implements BaseAction {
-	private viewer: BimViewer;
-	private domElement: HTMLElement;
+	private readonly viewer: BimViewer;
+	private readonly domElement: HTMLElement;
 
 	constructor(bimViewer: BimViewer) {
 		this.viewer = bimViewer;
