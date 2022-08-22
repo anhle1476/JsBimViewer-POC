@@ -79,3 +79,11 @@ ul,
   width: 70%;
   height: 100vh;
 }
+.icons-wrapper {
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.material-icons {
+  color: #444;
+}

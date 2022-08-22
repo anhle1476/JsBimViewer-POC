@@ -28,7 +28,7 @@ export default class SelectAction implements BaseAction {
 		const preserveSelected = event.ctrlKey;
 		const pick = await this.viewer.IFC.selector.pickIfcItem(
 			focusSelection,
-			preserveSelected
+			!preserveSelected
 		);
 
 		if (!pick) return;
@@ -37,8 +37,8 @@ export default class SelectAction implements BaseAction {
 		const eventArgs: IfcSelectEvent = {
 			targetId: pick.id,
 			deselect: false,
-			preserveSelected: false,
-			selectedIDs: this.viewer.getSelectedIDs(),
+			preserveSelected: preserveSelected,
+			selectedIDs: this.viewer.getSelectedIDs(pick.modelID),
 		};
 		const selectEvent = new CustomEvent(IfcSelect.ifcSelect, eventArgs);
 		this.domElement.dispatchEvent(selectEvent);

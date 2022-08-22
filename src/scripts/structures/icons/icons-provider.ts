@@ -25,6 +25,6 @@ export default class IconsProvider {
    * @returns unicode icon
    */
 	public getIcon(ifcType: string): string {
-		return this.iconsMap.get(ifcType) || "\uf1c4";
+		return this.iconsMap.get(ifcType.toUpperCase()) || "\uf1c4";
 	}
 }

@@ -2,16 +2,19 @@ import { IfcNode } from "./ifc-node";
 import { IfcManager } from "web-ifc-viewer/dist/components";
 import StructureTree from "./structure-tree";
 import StringUtils from "../../utils/string-utils";
+import IconsProvider from "../icons/icons-provider";
 
 export default class SimpleTree implements StructureTree {
 	private static DEFAULT_NODE_NAME: string = "Unknown";
 
 	private ifcManager: IfcManager;
 	private treeRoot: HTMLElement;
+	private iconsProvider: IconsProvider;
 
 	constructor(ifcManager: IfcManager, treeRoot: HTMLElement) {
 		this.ifcManager = ifcManager;
 		this.treeRoot = treeRoot;
+		this.iconsProvider = new IconsProvider();
 	}
 
 	public async renderTree(modelID: number): Promise<void> {
@@ -41,22 +44,21 @@ export default class SimpleTree implements StructureTree {
 	}
 
 	private createNode(parent: HTMLElement, ifcNode: IfcNode) {
-		const text: string = this.getNodeTextContent(ifcNode);
 		const children: IfcNode[] = ifcNode.children;
 
 		if (children.length === 0) {
-			this.createLeafNode(parent, text);
+			this.createLeafNode(parent, ifcNode);
 		} else {
 			// If there are multiple categories, group them together
 			const grouped = this.groupCategories(children);
-			this.createBranchNode(parent, text, grouped);
+			this.createBranchNode(parent, ifcNode, grouped);
 		}
 	}
 
 	private createBranchNode(
 		parent: HTMLElement,
-		text: string,
-		children: IfcNode[]
+		ifcNode: IfcNode,
+		groupedChildren: IfcNode[]
 	) {
 		// container
 		const nodeContainer = document.createElement("li");
@@ -64,8 +66,9 @@ export default class SimpleTree implements StructureTree {
 
 		// title
 		const title = document.createElement("span");
-		title.textContent = text;
-		title.classList.add("caret");
+		title.innerHTML = this.getNodeHTML(ifcNode);
+		title.classList.add("caret", "ifc-node");
+		title.dataset['ifcId'] = ifcNode.expressID.toString();
 		nodeContainer.appendChild(title);
 
 		// children
@@ -73,13 +76,17 @@ export default class SimpleTree implements StructureTree {
 		childrenContainer.classList.add("nested");
 		nodeContainer.appendChild(childrenContainer);
 
-		children.forEach((child) => this.createNode(childrenContainer, child));
+		groupedChildren.forEach((child) =>
+			this.createNode(childrenContainer, child)
+		);
 	}
 
-	private createLeafNode(parent: HTMLElement, text: string) {
+	private createLeafNode(parent: HTMLElement, ifcNode: IfcNode) {
 		const leaf = document.createElement("li") as HTMLLIElement;
-		leaf.classList.add("leaf-node");
-		leaf.textContent = text;
+		leaf.classList.add("leaf-node", "ifc-node");
+		leaf.dataset['ifcId'] = ifcNode.expressID.toString();
+		leaf.innerHTML = this.getNodeHTML(ifcNode);
+		
 		parent.appendChild(leaf);
 	}
 
@@ -113,14 +120,15 @@ export default class SimpleTree implements StructureTree {
 		}
 	}
 
-	private getNodeTextContent(node: IfcNode): string {
+	private getNodeHTML(node: IfcNode): string {
+		let iconUnicode = this.iconsProvider.getIcon(node.type);
+
 		let nodeName = SimpleTree.DEFAULT_NODE_NAME;
 
-		if (node.Name) {
-			let nodeName = node.Name.value.toString();
-			nodeName = StringUtils.decodeIfcString(nodeName);
+		if (!!node.Name) {
+			nodeName = StringUtils.decodeIfcString(node.Name.value.toString());
 		}
 
-		return `${node.type}: ${nodeName}`;
+		return `<span class='icons-wrapper' title='${node.type}'><i class='material-icons'>${iconUnicode}</i></span>: ${nodeName}`;
 	}
 }

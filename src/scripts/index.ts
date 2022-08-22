@@ -10,6 +10,7 @@ const viewer = new BimViewer({
 });
 viewer.axes.setAxes();
 viewer.grid.setGrid();
+viewer.setMaxCameraDistance(1200);
 
 const treeRoot = document.getElementById("myUL") as HTMLUListElement;
 const treeMenu = new SimpleTree(viewer.IFC, treeRoot);

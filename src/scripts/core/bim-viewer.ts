@@ -17,7 +17,7 @@ export default class BimViewer extends IfcViewerAPI {
 		action.register();
 	}
 
-	async dispose(): Promise<void> {
+	public async dispose(): Promise<void> {
 		await super.dispose();
 
 		// unbind actions
@@ -27,10 +27,20 @@ export default class BimViewer extends IfcViewerAPI {
 		this.actions = [];
 	}
 
-	getSelectedIDs(): Set<number> {
+	public getSelectedIDs(modelID: number): Set<number> {
 		// ! hack to bypass the private modifier of selectedFaces,
 		// so we create a new set to prevent directly modify the value
 		const selectedIDs = this.IFC.selector.selection["selectedFaces"];
-		return new Set<number>(selectedIDs);
+		return new Set<number>(selectedIDs?.[modelID]);
+	}
+
+	/**
+	 * Set max camera distance for the large size BIM
+	 *
+	 * @param maxDistance
+	 */
+	public setMaxCameraDistance(maxDistance = 1200) {
+		this.context.ifcCamera.cameraControls.maxDistance = maxDistance;
+		this.context.ifcCamera.perspectiveCamera.updateProjectionMatrix();
 	}
 }
