@@ -87,3 +87,6 @@ ul,
 .material-icons {
   color: #444;
 }
+.d-none {
+  display: none;
+}

@@ -25,8 +25,10 @@ input.addEventListener(
 		const target = changed.target as HTMLInputElement;
 		if (!target.files) return;
 		const file = target.files[0];
-		const ifcURL = URL.createObjectURL(file);
-		await viewer.IFC.loadIfcUrl(ifcURL);
+		await viewer.loadIfcFile(file, {
+			latitude: 35.834236,
+			longitude: 128.53421,
+		});
 		treeMenu.renderTree(0);
 	},
 	false
