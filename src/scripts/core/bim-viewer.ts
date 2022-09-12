@@ -1,10 +1,10 @@
-import * as THREE from 'three';
+import * as THREE from "three";
 import { IfcViewerAPI } from "web-ifc-viewer";
 import BaseAction from "./actions/base-action";
 import BimViewerOptions, { GeoInfo } from "./bim-viewer-options";
 import Stats from "stats.js";
 import MapboxIfcMap from "./components/mapbox-ifc-map";
-import { IFCModel } from "three/examples/jsm/loaders/IFCLoader";
+import { IFCModel } from "web-ifc-three/IFC/components/IFCModel";
 import GeoUtils from "../utils/geo-utils";
 
 /**
@@ -89,13 +89,27 @@ export default class BimViewer extends IfcViewerAPI {
 		const ifcModel = (await this.IFC.loadIfcUrl(ifcURL)) as IFCModel;
 
 		if (!!ifcModel && !!geo) {
-			const pos3D = GeoUtils.coordsToPosition(geo.latitude, geo.longitude);
-			ifcModel.position.set(pos3D.x, pos3D.y, pos3D.z);
-			this.context.fitToFrame();
+			this.moveIfcModelToCoords(ifcModel, geo);
+			this.fitObjectToFrame(ifcModel);
 			this.loadMap(geo.latitude, geo.longitude);
 		}
 
 		return ifcModel;
+	}
+
+	moveIfcModelToCoords(ifcModel: IFCModel, geo: GeoInfo): void {
+		let coordPos: THREE.Vector3 = GeoUtils.coordsToPosition(
+			geo.latitude,
+			geo.longitude
+		);
+		if (!!geo.offset) {
+			coordPos = coordPos.add(geo.offset);
+		}
+		ifcModel.position.set(coordPos.x, coordPos.y, coordPos.z);
+
+		if (!!geo.rotation) {
+			ifcModel.rotation.setFromVector3(geo.rotation);
+		}
 	}
 
 	loadMap(latitude: number, longitude: number): void {
@@ -103,5 +117,26 @@ export default class BimViewer extends IfcViewerAPI {
 		this.context.addComponent(mapComponent);
 
 		mapComponent.loadMap(latitude, longitude);
+	}
+
+	/**
+	 * Fit an 3D object to frame. Use this instead of `context.fitToFrame()` when the map is used,
+	 * so we only care about the specific object rather then the whole map
+	 * @param obj
+	 * @param nearFactor
+	 */
+	async fitObjectToFrame(
+		obj: THREE.Object3D<THREE.Event>,
+		nearFactor: number = 0.5
+	): Promise<void> {
+		const box = new THREE.Box3().setFromObject(obj);
+		const objSize = new THREE.Vector3();
+		box.getSize(objSize);
+		const objCenter = new THREE.Vector3();
+		box.getCenter(objCenter);
+
+		const radius = Math.max(objSize.x, objSize.y, objSize.z) * nearFactor;
+		const sphere = new THREE.Sphere(objCenter, radius);
+		await this.context.ifcCamera.cameraControls.fitToSphere(sphere, true);
 	}
 }

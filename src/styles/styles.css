@@ -87,6 +87,13 @@ ul,
 .material-icons {
   color: #444;
 }
+
 .d-none {
   display: none;
+}
+/* dat.GUI */
+.dg.main {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
