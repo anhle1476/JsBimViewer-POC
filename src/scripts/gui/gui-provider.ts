@@ -50,13 +50,13 @@ export default class GuiProvider {
 	}
 
 	private setupCoordsGui(geo: GeoInfo, callback: (value?: any) => void) {
-		this.gui.addFolder("Coords");
-		this.gui
+		const folder = this.gui.addFolder("Coords");
+		folder
 			.add(geo, "latitude")
 			.onChange(callback)
 			.step(0.000001)
 			.updateDisplay();
-		this.gui
+		folder
 			.add(geo, "longitude")
 			.onChange(callback)
 			.step(0.000001)
@@ -67,20 +67,20 @@ export default class GuiProvider {
 		if (!geo.offset) {
 			geo.offset = new Vector3(0, 0, 0);
 		}
-		this.gui.addFolder("Offset");
-		this.gui.add(geo.offset, "x", -100, 100, 0.1).onChange(callback);
-		this.gui.add(geo.offset, "y", -100, 100, 0.1).onChange(callback);
-		this.gui.add(geo.offset, "z", -100, 100, 0.1).onChange(callback);
+		const folder = this.gui.addFolder("Offset");
+		folder.add(geo.offset, "x", -100, 100, 0.1).onChange(callback);
+		folder.add(geo.offset, "y", -100, 100, 0.1).onChange(callback);
+		folder.add(geo.offset, "z", -100, 100, 0.1).onChange(callback);
 	}
 
 	private setupRotationGui(geo: GeoInfo, callback: (value?: any) => void) {
 		if (!geo.rotation) {
 			geo.rotation = new Vector3(0, 0, 0);
 		}
-		this.gui.addFolder("Rotation");
-		this.gui.add(geo.rotation, "x", -10, 10, 0.01).onChange(callback);
-		this.gui.add(geo.rotation, "y", -10, 10, 0.01).onChange(callback);
-		this.gui.add(geo.rotation, "z", -10, 10, 0.01).onChange(callback);
+		const folder = this.gui.addFolder("Rotation");
+		folder.add(geo.rotation, "x", -10, 10, 0.01).onChange(callback);
+		folder.add(geo.rotation, "y", -10, 10, 0.01).onChange(callback);
+		folder.add(geo.rotation, "z", -10, 10, 0.01).onChange(callback);
 	}
 
 	private onChangeGeoInfo(
